@@ -61,6 +61,17 @@ class ScannerTest {
         () -> assertEquals(TokenType.EOF, tokens.get(1).type));
   }
 
+  @Test
+  void scansNumberLiteral() {
+    List<Token> tokens = new Scanner("123,12.3").scanTokens();
+    assertAll(
+            () -> assertToken(tokens.getFirst(), TokenType.NUMBER, "123", 123.0, 1),
+            () -> assertToken(tokens.get(1), TokenType.COMMA, ",", null, 1),
+            () -> assertToken(tokens.get(2), TokenType.NUMBER, "12.3", 12.3, 1),
+            () -> assertToken(tokens.get(3), TokenType.EOF, "", null, 1)
+    );
+  }
+
   private static void assertToken(
       Token token, TokenType type, String lexeme, Object literal, int line) {
     assertAll(
