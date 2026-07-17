@@ -33,7 +33,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Build and test
+      - name: Build, test, and check formatting
         run: ./gradlew build
 
   dependency-submission:

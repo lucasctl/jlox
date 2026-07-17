@@ -1,5 +1,6 @@
 plugins {
     id("application")
+    id("com.diffplug.spotless") version "7.2.1"
 }
 
 group = "com.lucasctl"
@@ -17,6 +18,19 @@ dependencies {
 
 application {
     mainClass.set("com.lucasctl.jlox.Jlox")
+}
+
+spotless {
+    java {
+        googleJavaFormat("1.28.0")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:all")
 }
 
 tasks.named<JavaExec>("run") {
