@@ -59,6 +59,8 @@ class Scanner {
       default -> {
         if (isDigit(c)) {
           number();
+          } else if (isAlpha(c)) {
+          identifier();
         } else {
           Jlox.error(line, "Unexpected character.");
         }
@@ -99,6 +101,14 @@ class Scanner {
     return c >= '0' && c <= '9';
   }
 
+  private boolean isAlpha(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+  }
+
+  private boolean isAlphaNumeric(char c) {
+    return isAlpha(c) || isDigit(c);
+  }
+
   private void string() {
     while (peek() != '"' && !isAtEnd()) {
       if (peek() == '\n') line++;
@@ -114,6 +124,11 @@ class Scanner {
 
     String value = source.substring(start + 1, current - 1);
     addToken(TokenType.STRING, value);
+  }
+
+  private void identifier() {
+    while (isAlphaNumeric(peek())) advance();
+    addToken(TokenType.IDENTIFIER);
   }
 
   private void number() {

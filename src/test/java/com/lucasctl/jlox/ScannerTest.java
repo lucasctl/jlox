@@ -72,6 +72,14 @@ class ScannerTest {
     );
   }
 
+  @Test
+  void scansIdentifier() {
+    List<Token> tokens = new Scanner("abc123").scanTokens();
+    assertAll(
+        () -> assertToken(tokens.getFirst(), TokenType.IDENTIFIER, "abc123", null, 1),
+        () -> assertToken(tokens.get(1), TokenType.EOF, "", null, 1));
+  }
+
   private static void assertToken(
       Token token, TokenType type, String lexeme, Object literal, int line) {
     assertAll(
