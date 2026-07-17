@@ -59,7 +59,7 @@ class Scanner {
       default -> {
         if (isDigit(c)) {
           number();
-          } else if (isAlpha(c)) {
+        } else if (isAlpha(c)) {
           identifier();
         } else {
           Jlox.error(line, "Unexpected character.");
@@ -135,8 +135,8 @@ class Scanner {
     while (isDigit(peek())) advance();
 
     if (peek() == '.' && isDigit(peekNext())) {
-        do advance();
-        while (isDigit(peek()));
+      do advance();
+      while (isDigit(peek()));
     }
 
     addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
