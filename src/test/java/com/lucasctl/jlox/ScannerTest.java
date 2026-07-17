@@ -79,6 +79,33 @@ class ScannerTest {
         () -> assertToken(tokens.get(1), TokenType.EOF, "", null, 1));
   }
 
+  @Test
+  void scansKeywords() {
+    List<Token> tokens =
+        new Scanner("and class false for fun if nil or print return super this true var while")
+            .scanTokens();
+
+    assertEquals(
+        List.of(
+            TokenType.AND,
+            TokenType.CLASS,
+            TokenType.FALSE,
+            TokenType.FOR,
+            TokenType.FUN,
+            TokenType.IF,
+            TokenType.NIL,
+            TokenType.OR,
+            TokenType.PRINT,
+            TokenType.RETURN,
+            TokenType.SUPER,
+            TokenType.THIS,
+            TokenType.TRUE,
+            TokenType.VAR,
+            TokenType.WHILE,
+            TokenType.EOF),
+        tokens.stream().map(token -> token.type).toList());
+  }
+
   private static void assertToken(
       Token token, TokenType type, String lexeme, Object literal, int line) {
     assertAll(
