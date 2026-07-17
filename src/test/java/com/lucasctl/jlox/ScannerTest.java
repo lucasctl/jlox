@@ -53,6 +53,16 @@ class ScannerTest {
   }
 
   @Test
+  void ignoresMultilineCommentsAndTracksLines() {
+    List<Token> tokens = new Scanner("+ /* ignored\nover multiple lines */ -").scanTokens();
+
+    assertAll(
+        () -> assertToken(tokens.getFirst(), TokenType.PLUS, "+", null, 1),
+        () -> assertToken(tokens.get(1), TokenType.MINUS, "-", null, 2),
+        () -> assertToken(tokens.get(2), TokenType.EOF, "", null, 2));
+  }
+
+  @Test
   void scansStringLiteral() {
     List<Token> tokens = new Scanner("\"hello world\"").scanTokens();
 

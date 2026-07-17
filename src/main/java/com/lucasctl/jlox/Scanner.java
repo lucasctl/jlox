@@ -72,6 +72,19 @@ class Scanner {
       case '/' -> {
         if (match('/')) {
           while (peek() != '\n' && !isAtEnd()) advance();
+          } else if (match('*')) {
+
+          while (!isAtEnd() && (peek() != '*' || peekNext() != '/')) {
+            if (peek() == '\n') line++;
+            advance();
+          }
+
+          if (isAtEnd()) {
+            Jlox.error(line, "Unterminated comment.");
+            return;
+          }
+          advance();
+          advance();
         } else {
           addToken(TokenType.SLASH);
         }
