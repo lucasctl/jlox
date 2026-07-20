@@ -73,18 +73,7 @@ class Scanner {
         if (match('/')) {
           while (peek() != '\n' && !isAtEnd()) advance();
         } else if (match('*')) {
-
-          while (!isAtEnd() && (peek() != '*' || peekNext() != '/')) {
-            if (peek() == '\n') line++;
-            advance();
-          }
-
-          if (isAtEnd()) {
-            Jlox.error(line, "Unterminated comment.");
-            return;
-          }
-          advance();
-          advance();
+          blockComment();
         } else {
           addToken(TokenType.SLASH);
         }
@@ -165,9 +154,23 @@ class Scanner {
   private void identifier() {
     while (isAlphaNumeric(peek())) advance();
     String text = source.substring(start, current);
-    TokenType type = keywords.get(text);
-    if (type == null) type = TokenType.IDENTIFIER;
+    TokenType type = keywords.getOrDefault(text, TokenType.IDENTIFIER);
     addToken(type);
+  }
+
+  private void blockComment() {
+    while (!isAtEnd() && (peek() != '*' || peekNext() != '/')) {
+      if (peek() == '\n') line++;
+      advance();
+    }
+
+    if (isAtEnd()) {
+      Jlox.error(line, "Unterminated comment.");
+      return;
+    }
+
+    advance();
+    advance();
   }
 
   private void number() {
