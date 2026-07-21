@@ -32,6 +32,11 @@ class GenerateAst {
     writer.println("package com.lucasctl.jlox;");
     writer.println();
     writer.println("abstract class " + BASE_NAME + " {");
+    defineVisitor(writer, types);
+    // The base accept() method.
+    writer.println();
+    writer.println("  abstract <R> R accept(Visitor<R> visitor);");
+
     for (String type : types) {
       String[] parts = type.split(":");
       String className = parts[0].trim();
@@ -55,12 +60,38 @@ class GenerateAst {
       writer.println("      this." + name + " = " + name + ";");
     }
 
+    writer.println("  }");
+
+    // Visitor pattern.
+    writer.println();
+    writer.println("    @Override");
+    writer.println("    <R> R accept(Visitor<R> visitor) {");
+    writer.println("      return visitor.visit" + className + BASE_NAME + "(this);");
     writer.println("    }");
 
     // Fields.
     writer.println();
     for (String field : fields) {
       writer.println("    final " + field + ";");
+    }
+
+    writer.println("  }");
+  }
+
+  private static void defineVisitor(PrintWriter writer, List<String> types) {
+    writer.println("  interface Visitor<R> {");
+
+    for (String type : types) {
+      String typeName = type.split(":")[0].trim();
+      writer.println(
+          "    R visit"
+              + typeName
+              + BASE_NAME
+              + "("
+              + typeName
+              + " "
+              + BASE_NAME.toLowerCase()
+              + ");");
     }
 
     writer.println("  }");
