@@ -22,46 +22,37 @@ class Parser {
   }
 
   private Expr expression() {
-    return equality();
+    return comma();
+  }
+
+  private Expr comma() {
+    missingLeftOperand(this::conditional, TokenType.COMMA);
+    return binary(this::conditional, TokenType.COMMA);
+  }
+
+  private Expr conditional() {
+    Expr expr = equality();
+    if (match(TokenType.QUESTION)) {
+      Expr thenBranch = expression();
+      consume(TokenType.COLON, "Expect ':' after then branch of conditional expression.");
+      Expr elseBranch = conditional();
+      return new Expr.Conditional(expr, thenBranch, elseBranch);
+    }
+    return expr;
   }
 
   private Expr equality() {
+    missingLeftOperand(this::comparison, TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL);
     return binary(this::comparison, TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL);
   }
 
-  private boolean match(TokenType... types) {
-    for (TokenType type : types) {
-      if (check(type)) {
-        advance();
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private boolean check(TokenType type) {
-    return peek().type == type;
-  }
-
-  private Token advance() {
-    if (!isAtEnd()) current++;
-    return previous();
-  }
-
-  private boolean isAtEnd() {
-    return peek().type == TokenType.EOF;
-  }
-
-  private Token peek() {
-    return tokens.get(current);
-  }
-
-  private Token previous() {
-    return tokens.get(current - 1);
-  }
-
   private Expr comparison() {
+    missingLeftOperand(
+        this::term,
+        TokenType.GREATER,
+        TokenType.GREATER_EQUAL,
+        TokenType.LESS,
+        TokenType.LESS_EQUAL);
     return binary(
         this::term,
         TokenType.GREATER,
@@ -71,11 +62,21 @@ class Parser {
   }
 
   private Expr term() {
+    missingLeftOperand(this::factor, TokenType.PLUS);
     return binary(this::factor, TokenType.MINUS, TokenType.PLUS);
   }
 
   private Expr factor() {
+    missingLeftOperand(this::unary, TokenType.SLASH, TokenType.STAR);
     return binary(this::unary, TokenType.SLASH, TokenType.STAR);
+  }
+
+  private void missingLeftOperand(Supplier<Expr> rightOperand, TokenType... operators) {
+    if (match(operators)) {
+      Token operator = previous();
+      rightOperand.get();
+      throw error(operator, "Missing left-hand operand.");
+    }
   }
 
   private Expr binary(Supplier<Expr> operand, TokenType... operators) {
@@ -149,5 +150,37 @@ class Parser {
 
       advance();
     }
+  }
+
+  private boolean match(TokenType... types) {
+    for (TokenType type : types) {
+      if (check(type)) {
+        advance();
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private boolean check(TokenType type) {
+    return peek().type == type;
+  }
+
+  private Token advance() {
+    if (!isAtEnd()) current++;
+    return previous();
+  }
+
+  private boolean isAtEnd() {
+    return peek().type == TokenType.EOF;
+  }
+
+  private Token peek() {
+    return tokens.get(current);
+  }
+
+  private Token previous() {
+    return tokens.get(current - 1);
   }
 }

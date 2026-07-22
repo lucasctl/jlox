@@ -26,4 +26,14 @@ class AstRpnPrinter implements Expr.Visitor<String> {
   public String visitUnaryExpr(Expr.Unary expr) {
     return print(expr.right) + " " + expr.operator.lexeme;
   }
+
+  @Override
+  public String visitConditionalExpr(Expr.Conditional expr) {
+    return print(expr.condition)
+        + " "
+        + print(expr.thenBranch)
+        + " "
+        + print(expr.elseBranch)
+        + " ?:";
+  }
 }
