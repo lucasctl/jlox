@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 public class Jlox {
 
@@ -45,12 +44,15 @@ public class Jlox {
 
     if (hadError) System.exit(65);
 
-    Scanner scanner = new Scanner(source);
-    List<Token> tokens = scanner.scanTokens();
+    String result = new Interpreter().run(source);
+    if (result != null) System.out.println(result);
+  }
 
-    // For now, just print the tokens.
-    for (Token token : tokens) {
-      System.out.println(token);
+  static void error(Token token, String message) {
+    if (token.type == TokenType.EOF) {
+      report(token.line, " at end", message);
+    } else {
+      report(token.line, " at '" + token.lexeme + "'", message);
     }
   }
 
