@@ -60,6 +60,7 @@ final class Interpreter implements Expr.Visitor<Object> {
       }
       case SLASH -> {
         checkNumberOperands(expr.operator, left, right);
+        if ((double) right == 0) throw new RuntimeError(expr.operator, "Division by zero.");
         return (double) left / (double) right;
       }
       case STAR -> {
@@ -74,6 +75,7 @@ final class Interpreter implements Expr.Visitor<Object> {
         if (left instanceof String && right instanceof String) {
           return left + (String) right;
         }
+
         throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
       }
       case GREATER -> {
