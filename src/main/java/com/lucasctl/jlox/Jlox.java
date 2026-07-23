@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 public class Jlox {
 
   static boolean hadError = false;
+  static boolean hadRuntimeError = false;
 
   static void main(String[] args) throws IOException {
     if (args.length > 1) {
@@ -25,6 +26,8 @@ public class Jlox {
   private static void runFile(String path) throws IOException {
     byte[] bytes = Files.readAllBytes(Paths.get(path));
     run(new String(bytes, Charset.defaultCharset()));
+    if (hadError) System.exit(65);
+    if (hadRuntimeError) System.exit(70);
   }
 
   private static void runPrompt() throws IOException {
@@ -41,11 +44,24 @@ public class Jlox {
   }
 
   private static void run(String source) {
+    Scanner scanner = new Scanner(source);
+    Parser parser = new Parser(scanner.scanTokens());
+    Expr expression = parser.parse();
 
-    if (hadError) System.exit(65);
+    if (hadError) return;
 
-    String result = new Interpreter().run(source);
-    if (result != null) System.out.println(result);
+    try {
+      Interpreter interpreter = new Interpreter();
+      Object value = interpreter.interpret(expression);
+      System.out.println(interpreter.stringify(value));
+    } catch (RuntimeError error) {
+      runtimeError(error);
+    }
+  }
+
+  static void runtimeError(RuntimeError error) {
+    System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
+    hadRuntimeError = true;
   }
 
   static void error(Token token, String message) {
